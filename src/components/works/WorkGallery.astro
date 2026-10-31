@@ -1,0 +1,42 @@
+---
+import type { Work } from "../../../emdash-env";
+import { Image } from "emdash/ui";
+
+interface Props {
+	gallery?: Work["gallery"];
+}
+const { gallery } = Astro.props;
+---
+
+{gallery && gallery.length > 0 && (
+	<section aria-labelledby="work-gallery-heading">
+		<h2 id="work-gallery-heading">ギャラリー</h2>
+		<div class="gallery">
+			{gallery.map(
+				(item) =>
+					item.image && (
+						<figure>
+							<Image image={item.image} />
+							{item.caption && <figcaption>{item.caption}</figcaption>}
+						</figure>
+					),
+			)}
+		</div>
+	</section>
+)}
+
+<style>
+	.gallery {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+		gap: 1.5rem;
+	}
+	figure {
+		margin: 0;
+		overflow-wrap: anywhere;
+	}
+	figure :global(img) {
+		max-width: 100%;
+		height: auto;
+	}
+</style>

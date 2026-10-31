@@ -1,0 +1,116 @@
+---
+import { getEmDashEntry, getSeoMeta, decodeSlug, getSiteSettingsWithCacheHint } from "emdash";
+import { Image, PortableText } from "emdash/ui";
+import Base from "../../layouts/Base.astro";
+import WorkGallery from "../../components/works/WorkGallery.astro";
+import { resolveStarterSiteIdentity } from "../../utils/site-identity";
+import { contentUnavailable } from "../../utils/news";
+import { worksPath, formatWorkDate } from "../../utils/works";
+
+if (!Astro.url.pathname.endsWith("/")) {
+	const target = new URL(Astro.url);
+	target.pathname += "/";
+	return Astro.redirect(target.pathname + target.search, 308);
+}
+const slug = decodeSlug(Astro.params.slug);
+if (!slug) return Astro.rewrite("/404");
+const result = await getEmDashEntry("works", slug).catch(() => null);
+if (!result || result.error) return contentUnavailable();
+const { entry: work, cacheHint, isPreview } = result;
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+if (!work) return Astro.rewrite("/404");
+const settings = await getSiteSettingsWithCacheHint().catch(() => null);
+if (!settings) return contentUnavailable();
+if (Astro.cache?.enabled) Astro.cache.set(settings.cacheHint);
+const { siteTitle } = resolveStarterSiteIdentity(settings.data);
+const seo = getSeoMeta(work, {
+	siteTitle,
+	siteUrl: Astro.url.origin,
+	path: worksPath(work.id),
+	defaultDescription: work.data.summary,
+});
+const specifications = [
+	{ label: "材質", value: work.data.material, edit: work.edit.material },
+	{ label: "加工方法", value: work.data.process, edit: work.edit.process },
+	{ label: "対象業種", value: work.data.industry, edit: work.edit.industry },
+].filter((item) => item.value?.trim());
+---
+
+<Base
+	title={seo.title}
+	pageTitle={seo.ogTitle}
+	description={seo.description}
+	canonical={seo.canonical}
+	image={seo.ogImage}
+	isPreview={isPreview}
+	content={{ collection: "works", id: work.data.id, slug: work.id }}
+	publishedTime={work.data.publishedAt?.toISOString()}
+	modifiedTime={work.data.updatedAt.toISOString()}
+>
+	{isPreview && (
+		<aside role="status">
+			プレビュー表示です。下書きの変更内容は公開操作まで一般表示に反映されません。{" "}
+			<a href={worksPath(work.id)}>通常表示を開く</a>
+		</aside>
+	)}
+	<article class="work-detail">
+		<h1 {...work.edit.title}>{work.data.title}</h1>
+		<p {...work.edit.summary}>{work.data.summary}</p>
+		{work.data.publishedAt && (
+			<p>
+				公開日：
+				<time datetime={work.data.publishedAt.toISOString()}>
+					{formatWorkDate(work.data.publishedAt)}
+				</time>
+			</p>
+		)}
+		{work.data.featured_image && (
+			<div {...work.edit.featured_image}>
+				<Image image={work.data.featured_image} />
+			</div>
+		)}
+		{specifications.length > 0 && (
+			<dl>
+				{specifications.map((item) => (
+					<div>
+						<dt>{item.label}</dt>
+						<dd {...item.edit}>{item.value}</dd>
+					</div>
+				))}
+			</dl>
+		)}
+		{work.data.content && work.data.content.length > 0 && (
+			<div {...work.edit.content}>
+				<PortableText value={work.data.content} />
+			</div>
+		)}
+		<div {...work.edit.gallery}>
+			<WorkGallery gallery={work.data.gallery} />
+		</div>
+	</article>
+	<p>
+		<a href="/works/">製作実績一覧へ戻る</a>
+	</p>
+</Base>
+
+<style>
+	.work-detail {
+		max-width: 70rem;
+		overflow-wrap: anywhere;
+	}
+	.work-detail :global(img) {
+		max-width: 100%;
+		height: auto;
+	}
+	dl > div {
+		display: flex;
+		gap: 1rem;
+		margin-block: 0.5rem;
+	}
+	dt {
+		font-weight: bold;
+	}
+	dd {
+		margin: 0;
+	}
+</style>
