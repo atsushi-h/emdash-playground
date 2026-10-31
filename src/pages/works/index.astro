@@ -1,0 +1,59 @@
+---
+import { getEmDashCollection } from "emdash";
+import Base from "../../layouts/Base.astro";
+import WorkCard from "../../components/works/WorkCard.astro";
+import { contentUnavailable } from "../../utils/news";
+
+if (!Astro.url.pathname.endsWith("/")) {
+	const target = new URL(Astro.url);
+	target.pathname += "/";
+	return Astro.redirect(target.pathname + target.search, 308);
+}
+const cursor = Astro.url.searchParams.get("cursor") || undefined;
+const result = await getEmDashCollection("works", {
+	status: "published",
+	orderBy: { published_at: "desc" },
+	limit: 12,
+	cursor,
+}).catch(() => null);
+if (!result || result.error) return contentUnavailable();
+if (Astro.cache?.enabled) Astro.cache.set(result.cacheHint);
+const canonical = new URL("/works/", Astro.url.origin);
+if (cursor) canonical.searchParams.set("cursor", cursor);
+---
+
+<Base
+	title="製作実績"
+	description="株式会社ミナトテックの製作実績をご紹介します。掲載事例は架空のPoC用コンテンツです。"
+	canonical={canonical.href}
+>
+	<h1>製作実績</h1>
+	<p>掲載事例は架空の製作例です。画像は実物写真ではなく模式図です。</p>
+	{result.entries.length === 0 ? (
+		<p>現在、公開している製作実績はありません。</p>
+	) : (
+		<ul class="works-list">
+			{result.entries.map((work) => (
+				<li>
+					<WorkCard slug={work.id} work={work.data} />
+				</li>
+			))}
+		</ul>
+	)}
+	<nav aria-label="製作実績のページ送り">
+		{cursor && <a href="/works/">最初のページ</a>}
+		{result.nextCursor && (
+			<a href={`/works/?cursor=${encodeURIComponent(result.nextCursor)}`}>次のページ</a>
+		)}
+	</nav>
+</Base>
+
+<style>
+	.works-list {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+		gap: 2rem;
+		padding: 0;
+		list-style: none;
+	}
+</style>

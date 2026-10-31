@@ -2,6 +2,8 @@ node_modules
 dist
 .astro
 .emdash/migrations.json
+.emdash/types.ts
+.emdash/schema.json
 uploads
 data.db
 data.db-*

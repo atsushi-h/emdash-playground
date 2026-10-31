@@ -65,6 +65,76 @@
 					"searchable": true
 				}
 			]
+		},
+		{
+			"slug": "works",
+			"label": "製作実績",
+			"labelSingular": "製作実績",
+			"urlPattern": "/works/{slug}/",
+			"supports": ["drafts", "revisions", "preview", "search", "seo"],
+			"fields": [
+				{
+					"slug": "title",
+					"label": "タイトル",
+					"type": "string",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "summary",
+					"label": "概要",
+					"type": "text",
+					"required": true,
+					"searchable": true
+				},
+				{
+					"slug": "featured_image",
+					"label": "メイン画像",
+					"type": "image",
+					"required": true
+				},
+				{
+					"slug": "content",
+					"label": "本文",
+					"type": "portableText",
+					"searchable": true
+				},
+				{
+					"slug": "material",
+					"label": "材質",
+					"type": "string"
+				},
+				{
+					"slug": "process",
+					"label": "加工方法",
+					"type": "string"
+				},
+				{
+					"slug": "industry",
+					"label": "対象業種",
+					"type": "string"
+				},
+				{
+					"slug": "gallery",
+					"label": "ギャラリー",
+					"type": "repeater",
+					"validation": {
+						"subFields": [
+							{
+								"slug": "image",
+								"label": "画像",
+								"type": "image",
+								"required": true
+							},
+							{
+								"slug": "caption",
+								"label": "キャプション",
+								"type": "string"
+							}
+						]
+					}
+				}
+			]
 		}
 	],
 	"taxonomies": [
@@ -117,6 +187,11 @@
 					"type": "custom",
 					"label": "お知らせ",
 					"url": "/news/"
+				},
+				{
+					"type": "custom",
+					"label": "製作実績",
+					"url": "/works/"
 				},
 				{
 					"type": "custom",
