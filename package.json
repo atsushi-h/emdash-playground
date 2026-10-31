@@ -1,31 +1,39 @@
 {
-  "name": "emdash-playground",
-  "version": "0.0.3",
-  "private": true,
-  "type": "module",
-  "emdash": {
-    "label": "Starter",
-    "seed": "seed/seed.json"
-  },
-  "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "deploy": "astro build && wrangler deploy",
-    "typecheck": "astro check"
-  },
-  "dependencies": {
-    "@astrojs/cloudflare": "^14.3.1",
-    "@astrojs/react": "^7.0.0",
-    "@emdash-cms/cloudflare": "^1.3.0",
-    "astro": "^7.3.2",
-    "emdash": "^1.3.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
-  },
-  "devDependencies": {
-    "@astrojs/check": "^0.9.10",
-    "@cloudflare/workers-types": "^5.20260820.1",
-    "wrangler": "^4.125.0"
-  }
+	"name": "emdash-playground",
+	"version": "0.0.3",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "astro build",
+		"preview": "astro preview",
+		"deploy": "astro build && wrangler deploy",
+		"typecheck": "astro check",
+		"format": "oxfmt --write .",
+		"format:check": "oxfmt --check .",
+		"lint": "oxlint --deny-warnings .",
+		"lint:fix": "oxlint --fix --deny-warnings .",
+		"check": "bun run format:check && bun run lint && bun run typecheck"
+	},
+	"dependencies": {
+		"@astrojs/cloudflare": "^14.3.1",
+		"@astrojs/react": "^7.0.0",
+		"@emdash-cms/cloudflare": "^1.3.0",
+		"astro": "^7.3.2",
+		"emdash": "^1.3.0",
+		"react": "19.2.4",
+		"react-dom": "19.2.4"
+	},
+	"devDependencies": {
+		"@astrojs/check": "^0.9.10",
+		"@astrojs/compiler-rs": "0.5.2",
+		"@cloudflare/workers-types": "^5.20260820.1",
+		"oxfmt": "0.75.0",
+		"oxlint": "1.90.0",
+		"wrangler": "^4.125.0"
+	},
+	"emdash": {
+		"label": "Starter",
+		"seed": "seed/seed.json"
+	}
 }

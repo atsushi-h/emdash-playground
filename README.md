@@ -13,15 +13,15 @@ A general-purpose starting point for building sites with [EmDash](https://github
 
 ## Pages
 
-| Page | Route |
-|---|---|
-| Homepage | `/` |
-| All posts | `/posts` |
-| Single post | `/posts/:slug` |
+| Page             | Route             |
+| ---------------- | ----------------- |
+| Homepage         | `/`               |
+| All posts        | `/posts`          |
+| Single post      | `/posts/:slug`    |
 | Category archive | `/category/:slug` |
-| Tag archive | `/tag/:slug` |
-| Static pages | `/:slug` |
-| 404 | fallback |
+| Tag archive      | `/tag/:slug`      |
+| Static pages     | `/:slug`          |
+| 404              | fallback          |
 
 ## Infrastructure
 
@@ -38,6 +38,28 @@ bun dev
 ```
 
 Open http://localhost:4321/_emdash/admin and complete the setup wizard. EmDash runs database migrations and applies the starter seed during setup. The site is available at http://localhost:4321.
+
+## Code Quality
+
+Use the Bun version pinned in `mise.toml` (`mise install` if needed).
+
+```bash
+bun run format        # Format files, including .astro
+bun run format:check  # Check formatting without writing
+bun run lint          # Run Oxlint; fail on warnings
+bun run lint:fix      # Apply automatic lint fixes
+bun run typecheck     # Check Astro and TypeScript types
+bun run check         # Run all three checks
+```
+
+Oxfmt formats Astro files with `astro: true` and `@astrojs/compiler-rs`.
+Its Astro support uses a bundled Prettier implementation; Prettier and ESLint
+are not direct project dependencies. Oxlint checks supported JavaScript and
+TypeScript regions of Astro files, not the entire Astro template. `astro check`
+provides the complementary Astro and TypeScript diagnostics.
+
+Generated files (`emdash-env.d.ts`, `worker-configuration.d.ts`) and build/runtime
+directories are excluded from formatting and linting.
 
 ## Deploying
 
