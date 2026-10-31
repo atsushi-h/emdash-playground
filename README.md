@@ -1,3 +1,9 @@
+# 株式会社ミナトテック 企業サイトPoC
+
+フェーズ1のお知らせ運用を実装しています。一覧は`/news/`、管理画面の内部コレクション名は`posts`です。
+
+起動・既存DBへの適用・検証結果・管理画面での確認手順は[フェーズ1の引き継ぎ資料](docs/phase1-news.md)を参照してください。以下は元テンプレートの説明です。
+
 # EmDash Starter Template (Cloudflare)
 
 A general-purpose starting point for building sites with [EmDash](https://github.com/emdash-cms/emdash) on Cloudflare Workers. Includes posts, pages, categories, and tags with minimal styling -- designed as a base you can build on rather than a finished theme.

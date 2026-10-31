@@ -2,43 +2,44 @@
 	"$schema": "https://emdashcms.com/seed.schema.json",
 	"version": "1",
 	"meta": {
-		"name": "Starter",
-		"description": "A minimal EmDash starter with posts and pages",
+		"name": "ミナトテック",
+		"description": "株式会社ミナトテック 企業サイトPoC",
 		"author": "EmDash"
 	},
 	"settings": {
-		"title": "My Site",
-		"tagline": "Built with EmDash"
+		"title": "株式会社ミナトテック",
+		"tagline": "精密部品加工・機械設計を通じて、ものづくりを支えます。",
+		"timezone": "Asia/Tokyo"
 	},
 	"collections": [
 		{
 			"slug": "posts",
-			"label": "Posts",
-			"labelSingular": "Post",
-			"urlPattern": "/posts/{slug}",
+			"label": "お知らせ",
+			"labelSingular": "お知らせ",
+			"urlPattern": "/news/{slug}/",
 			"supports": ["drafts", "revisions", "preview", "scheduling", "search", "seo"],
 			"fields": [
 				{
 					"slug": "title",
-					"label": "Title",
+					"label": "タイトル",
 					"type": "string",
 					"required": true,
 					"searchable": true
 				},
 				{
 					"slug": "featured_image",
-					"label": "Featured Image",
+					"label": "メイン画像",
 					"type": "image"
 				},
 				{
 					"slug": "content",
-					"label": "Content",
+					"label": "本文",
 					"type": "portableText",
 					"searchable": true
 				},
 				{
 					"slug": "excerpt",
-					"label": "Excerpt",
+					"label": "概要",
 					"type": "text"
 				}
 			]
@@ -105,22 +106,22 @@
 	"menus": [
 		{
 			"name": "primary",
-			"label": "Primary Navigation",
+			"label": "メインメニュー",
 			"items": [
 				{
 					"type": "custom",
-					"label": "Home",
+					"label": "ホーム",
 					"url": "/"
 				},
 				{
 					"type": "custom",
-					"label": "Posts",
-					"url": "/posts"
+					"label": "お知らせ",
+					"url": "/news/"
 				},
 				{
 					"type": "custom",
-					"label": "About",
-					"url": "/about"
+					"label": "会社概要",
+					"url": "/about/"
 				}
 			]
 		}
@@ -159,19 +160,19 @@
 				"slug": "about",
 				"status": "published",
 				"data": {
-					"title": "About",
+					"title": "会社概要",
 					"content": [
 						{
 							"_type": "block",
+							"_key": "about",
 							"style": "normal",
 							"children": [
 								{
 									"_type": "span",
-									"text": "This is the about page. Edit it in the admin panel or replace this template with your own design.",
-									"_key": "k1"
+									"_key": "text",
+									"text": "株式会社ミナトテック（架空企業）｜事業内容：精密部品加工・機械設計｜従業員数：約35名"
 								}
-							],
-							"_key": "k0"
+							]
 						}
 					]
 				}
@@ -183,44 +184,20 @@
 				"slug": "welcome",
 				"status": "published",
 				"data": {
-					"title": "Welcome",
-					"excerpt": "Your first post. Replace this with your own content.",
+					"title": "ホームページを公開しました",
+					"excerpt": "株式会社ミナトテックからのお知らせを掲載します。",
 					"content": [
 						{
 							"_type": "block",
+							"_key": "welcome",
 							"style": "normal",
 							"children": [
 								{
 									"_type": "span",
-									"text": "This is a starter post. The templates in this project show the basic patterns for querying and rendering EmDash content. Replace them with your own design.",
-									"_key": "k1"
+									"_key": "text",
+									"text": "株式会社ミナトテックは、精密部品加工・機械設計に取り組む約35名の会社です。このサイトは架空企業のPoCです。"
 								}
-							],
-							"_key": "k0"
-						},
-						{
-							"_type": "block",
-							"style": "h2",
-							"children": [
-								{
-									"_type": "span",
-									"text": "What to do next",
-									"_key": "k3"
-								}
-							],
-							"_key": "k2"
-						},
-						{
-							"_type": "block",
-							"style": "normal",
-							"children": [
-								{
-									"_type": "span",
-									"text": "Open the admin panel to add content, or edit the Astro pages in src/pages to change how content is displayed.",
-									"_key": "k5"
-								}
-							],
-							"_key": "k4"
+							]
 						}
 					]
 				},

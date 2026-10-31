@@ -1,29 +1,39 @@
 ---
-import { getEmDashCollection, getSiteSettings } from "emdash";
+import { getEmDashCollection, getSiteSettingsWithCacheHint } from "emdash";
 import { Image } from "emdash/ui";
+import { newsPath, formatNewsDate, contentUnavailable } from "../utils/news";
 import Base from "../layouts/Base.astro";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
 
-const { entries: posts, cacheHint } = await getEmDashCollection("posts", {
+const {
+	entries: posts,
+	cacheHint,
+	error,
+} = await getEmDashCollection("posts", {
+	status: "published",
 	orderBy: { published_at: "desc" },
 	limit: 10,
 });
-const { siteTitle, siteTagline } = resolveStarterSiteIdentity(await getSiteSettings());
+const settings = await getSiteSettingsWithCacheHint();
+if (Astro.cache?.enabled) Astro.cache.set(settings.cacheHint);
+const { siteTitle, siteTagline } = resolveStarterSiteIdentity(settings.data);
+if (error) return contentUnavailable();
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 ---
 
 <Base title={siteTitle} description={siteTagline}>
-	<h1>Recent Posts</h1>
+	<h1>{siteTitle}</h1>
+	<p>{siteTagline}</p>
+	<p>精密部品加工・機械設計に取り組む約35名の架空企業のPoCサイトです。</p>
+	<h2>お知らせ</h2>
 
 	{posts.length === 0 ? (
-		<p>
-			No posts yet. <a href="/_emdash/admin/content/posts/new">Create one</a>.
-		</p>
+		<p>現在、お知らせはありません。</p>
 	) : (
 		<ul>
 			{posts.map((post) => (
 				<li>
-					<a href={`/posts/${post.id}`}>
+					<a href={newsPath(post.id)}>
 						{post.data.featured_image && (
 							<div {...post.edit.featured_image}>
 								<Image image={post.data.featured_image} />
@@ -34,15 +44,14 @@ if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
 					{post.data.excerpt && <p {...post.edit.excerpt}>{post.data.excerpt}</p>}
 					{post.data.publishedAt && (
 						<time datetime={post.data.publishedAt.toISOString()}>
-							{post.data.publishedAt.toLocaleDateString("en-US", {
-								year: "numeric",
-								month: "long",
-								day: "numeric",
-							})}
+							{formatNewsDate(post.data.publishedAt)}
 						</time>
 					)}
 				</li>
 			))}
 		</ul>
 	)}
+	<p>
+		<a href="/news/">お知らせをすべて見る</a>
+	</p>
 </Base>

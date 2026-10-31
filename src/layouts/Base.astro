@@ -7,6 +7,9 @@ import { resolveStarterSiteIdentity } from "../utils/site-identity";
 
 interface Props {
 	title: string;
+	isPreview?: boolean;
+	publishedTime?: string;
+	modifiedTime?: string;
 	pageTitle?: string | null;
 	description?: string | null;
 	image?: string | null;
@@ -15,7 +18,22 @@ interface Props {
 	content?: { collection: string; id: string; slug?: string | null };
 }
 
-const { title, pageTitle, description, image, canonical, content } = Astro.props;
+const {
+	title,
+	pageTitle,
+	description,
+	image,
+	canonical,
+	content,
+	isPreview = false,
+	publishedTime,
+	modifiedTime,
+} = Astro.props;
+const privatePage = isPreview || Astro.url.searchParams.has("_preview");
+if (privatePage) {
+	Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
+	Astro.response.headers.set("Cache-Control", "private, no-store");
+}
 const [settingsResult, menuResult] = await Promise.all([
 	getSiteSettingsWithCacheHint(),
 	getMenuWithCacheHint("primary"),
@@ -35,7 +53,9 @@ const menu = menuResult.data;
 const pageCtx = createPublicPageContext({
 	Astro,
 	kind: content ? "content" : "custom",
-	pageType: "website",
+	pageType: content ? "article" : "website",
+	seo: privatePage ? { robots: "noindex, nofollow" } : undefined,
+	articleMeta: content ? { publishedTime, modifiedTime } : undefined,
 	title: fullTitle,
 	pageTitle: pageTitle ?? title,
 	description: pageDescription,
@@ -47,7 +67,7 @@ const pageCtx = createPublicPageContext({
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -79,7 +99,7 @@ const pageCtx = createPublicPageContext({
 						{item.label}
 					</a>
 				))}
-				<LiveSearch placeholder="Search..." collections={["posts", "pages"]} />
+				<LiveSearch placeholder="サイト内を検索" collections={["posts", "pages"]} />
 			</nav>
 		</header>
 

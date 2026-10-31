@@ -1,6 +1,7 @@
 ---
-import { getEmDashEntry, getSeoMeta, decodeSlug, getSiteSettings } from "emdash";
+import { getEmDashEntry, getSeoMeta, decodeSlug, getSiteSettingsWithCacheHint } from "emdash";
 import { PortableText } from "emdash/ui";
+import { contentUnavailable } from "../utils/news";
 import Base from "../layouts/Base.astro";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
 
@@ -10,26 +11,31 @@ if (!slug) {
 	return Astro.rewrite("/404");
 }
 
-const { entry: page, cacheHint } = await getEmDashEntry("pages", slug);
+const { entry: page, cacheHint, error, isPreview } = await getEmDashEntry("pages", slug);
 
+if (error) return contentUnavailable();
 if (!page) {
 	return Astro.rewrite("/404");
 }
 
 if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
-const { siteTitle } = resolveStarterSiteIdentity(await getSiteSettings());
+const settings = await getSiteSettingsWithCacheHint();
+if (Astro.cache?.enabled) Astro.cache.set(settings.cacheHint);
+const { siteTitle } = resolveStarterSiteIdentity(settings.data);
 
 const seo = getSeoMeta(page, {
 	siteTitle,
 	siteUrl: Astro.url.origin,
-	path: Astro.url.pathname.replace(/\/$/, ""),
+	path: `/${encodeURIComponent(page.id)}/`,
 });
 ---
 
 <Base
+	isPreview={isPreview}
 	title={seo.title}
 	pageTitle={seo.ogTitle}
 	description={seo.description}
+	image={seo.ogImage}
 	canonical={seo.canonical}
 	content={{ collection: "pages", id: page.data.id, slug }}
 >

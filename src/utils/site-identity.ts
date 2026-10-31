@@ -12,8 +12,8 @@ export interface StarterSiteIdentitySettings {
 	favicon?: MediaReference;
 }
 
-const DEFAULT_SITE_TITLE = "My Site";
-const DEFAULT_SITE_TAGLINE = "Built with EmDash";
+const DEFAULT_SITE_TITLE = "株式会社ミナトテック";
+const DEFAULT_SITE_TAGLINE = "精密部品加工・機械設計を通じて、ものづくりを支えます。";
 
 export function resolveStarterSiteIdentity(settings?: StarterSiteIdentitySettings) {
 	return {

@@ -1,9 +1,14 @@
 ---
 import Base from "../layouts/Base.astro";
+Astro.response.status = 404;
+Astro.response.headers.set("X-Robots-Tag", "noindex");
+Astro.response.headers.set("Cache-Control", "no-store");
 ---
 
-<Base title="Not Found">
-	<h1>Page not found</h1>
-	<p>The page you're looking for doesn't exist.</p>
-	<a href="/">Go home</a>
+<Base title="ページが見つかりません">
+	<h1>ページが見つかりません</h1>
+	<p>URLをご確認いただくか、お知らせ一覧からお探しください。</p>
+	<p>
+		<a href="/news/">お知らせ一覧へ</a> · <a href="/">ホームへ</a>
+	</p>
 </Base>

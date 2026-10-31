@@ -1,0 +1,67 @@
+---
+import { getEmDashEntry, getSeoMeta, decodeSlug, getSiteSettingsWithCacheHint } from "emdash";
+import { Image, PortableText } from "emdash/ui";
+import Base from "../../layouts/Base.astro";
+import { resolveStarterSiteIdentity } from "../../utils/site-identity";
+import { newsPath, formatNewsDate, contentUnavailable } from "../../utils/news";
+
+if (!Astro.url.pathname.endsWith("/")) {
+	const target = new URL(Astro.url);
+	target.pathname += "/";
+	return Astro.redirect(target.pathname + target.search, 308);
+}
+const slug = decodeSlug(Astro.params.slug);
+if (!slug) return Astro.rewrite("/404");
+const result = await getEmDashEntry("posts", slug).catch(() => null);
+if (!result || result.error) return contentUnavailable();
+const { entry: post, cacheHint, isPreview } = result;
+if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+if (!post) return Astro.rewrite("/404");
+const settings = await getSiteSettingsWithCacheHint().catch(() => null);
+if (!settings) return contentUnavailable();
+if (Astro.cache?.enabled) Astro.cache.set(settings.cacheHint);
+const { siteTitle } = resolveStarterSiteIdentity(settings.data);
+const seo = getSeoMeta(post, {
+	siteTitle,
+	siteUrl: Astro.url.origin,
+	path: newsPath(post.id),
+});
+---
+
+<Base
+	title={seo.title}
+	pageTitle={seo.ogTitle}
+	description={seo.description}
+	canonical={seo.canonical}
+	image={seo.ogImage}
+	isPreview={isPreview}
+	content={{ collection: "posts", id: post.data.id, slug: post.id }}
+	publishedTime={post.data.publishedAt?.toISOString()}
+	modifiedTime={post.data.updatedAt.toISOString()}
+>
+	{isPreview && (
+		<aside role="status" class="preview-banner">
+			プレビュー表示です。下書きの変更内容は公開操作まで一般表示に反映されません。
+			<a href={newsPath(post.id)}>通常表示を開く</a>
+		</aside>
+	)}
+	<article>
+		<h1 {...post.edit.title}>{post.data.title}</h1>
+		{post.data.publishedAt && (
+			<time datetime={post.data.publishedAt.toISOString()}>
+				{formatNewsDate(post.data.publishedAt)}
+			</time>
+		)}
+		{post.data.featured_image && (
+			<div {...post.edit.featured_image}>
+				<Image image={post.data.featured_image} />
+			</div>
+		)}
+		<div {...post.edit.content}>
+			<PortableText value={post.data.content} />
+		</div>
+	</article>
+	<p>
+		<a href="/news/">お知らせ一覧へ戻る</a>
+	</p>
+</Base>
