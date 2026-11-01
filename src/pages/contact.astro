@@ -1,0 +1,15 @@
+---
+import { getEmDashEntry } from "emdash";
+import CorporatePage from "../components/CorporatePage.astro";
+import { contentUnavailable, protectPreview } from "../utils/news";
+import { slashRedirect } from "../utils/corporate";
+
+if (!Astro.url.pathname.endsWith("/")) return Astro.redirect(slashRedirect(Astro.url), 308);
+const result = await getEmDashEntry("pages", "contact").catch(() => null);
+if (!result || result.error) return contentUnavailable();
+
+if (Astro.cache?.enabled) Astro.cache.set(result.cacheHint);
+protectPreview(Astro.response, Astro.url, result.isPreview);
+---
+
+<CorporatePage result={result} slug="contact" />

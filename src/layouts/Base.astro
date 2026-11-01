@@ -1,9 +1,11 @@
 ---
-import { getMenuWithCacheHint, getSiteSettingsWithCacheHint } from "emdash";
 import { EmDashHead, EmDashBodyStart, EmDashBodyEnd } from "emdash/ui";
 import { createPublicPageContext } from "emdash/page";
-import LiveSearch from "emdash/ui/search";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
+import SiteHeader from "../components/SiteHeader.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import ContactCTA from "../components/ContactCTA.astro";
+import "../styles/theme.css";
 
 interface Props {
 	title: string;
@@ -14,6 +16,7 @@ interface Props {
 	description?: string | null;
 	image?: string | null;
 	canonical?: string | null;
+	showContactCTA?: boolean;
 	/** Pass content reference for plugin page contributions on content pages */
 	content?: { collection: string; id: string; slug?: string | null };
 }
@@ -28,25 +31,29 @@ const {
 	isPreview = false,
 	publishedTime,
 	modifiedTime,
+	showContactCTA = true,
 } = Astro.props;
 const privatePage = isPreview || Astro.url.searchParams.has("_preview");
 if (privatePage) {
 	Astro.response.headers.set("X-Robots-Tag", "noindex, nofollow");
 	Astro.response.headers.set("Cache-Control", "private, no-store");
 }
-const [settingsResult, menuResult] = await Promise.all([
-	getSiteSettingsWithCacheHint(),
-	getMenuWithCacheHint("primary"),
-]);
+const [settingsResult, menuResult, footerResult, companyResult] = Astro.locals.corporateChrome!;
 if (Astro.cache?.enabled) {
 	Astro.cache.set(settingsResult.cacheHint);
 	Astro.cache.set(menuResult.cacheHint);
+	Astro.cache.set(footerResult.cacheHint);
+	Astro.cache.set(companyResult.cacheHint);
 }
 
 const { siteTitle, siteTagline, siteLogo } = resolveStarterSiteIdentity(settingsResult.data);
+const separator = settingsResult.data.seo?.titleSeparator ?? " — ";
 const titleIncludesSiteName =
-	title === siteTitle || title.endsWith(` | ${siteTitle}`) || title.endsWith(` — ${siteTitle}`);
-const fullTitle = titleIncludesSiteName ? title : `${title} — ${siteTitle}`;
+	title === siteTitle ||
+	title.endsWith(`${separator}${siteTitle}`) ||
+	title.endsWith(` | ${siteTitle}`) ||
+	title.endsWith(` — ${siteTitle}`);
+const fullTitle = titleIncludesSiteName ? title : `${title}${separator}${siteTitle}`;
 const pageDescription = description ?? siteTagline;
 const menu = menuResult.data;
 
@@ -77,35 +84,19 @@ const pageCtx = createPublicPageContext({
 	<body>
 		<EmDashBodyStart page={pageCtx} />
 
-		<header>
-			<nav>
-				<a href="/">
-					{siteLogo ? (
-						<img
-							src={siteLogo.url}
-							alt={siteLogo.alt || siteTitle}
-							style="height:48px;width:auto;margin:-8px 0;display:block;"
-						/>
-					) : (
-						siteTitle
-					)}
-				</a>
-				{menu?.items.map((item) => (
-					<a
-						href={item.url}
-						target={item.target}
-						rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
-					>
-						{item.label}
-					</a>
-				))}
-				<LiveSearch placeholder="サイト内を検索" collections={["posts", "pages", "works"]} />
-			</nav>
-		</header>
-
-		<main>
+		<a class="skip-link" href="#main-content">
+			本文へスキップ
+		</a>
+		<SiteHeader siteTitle={siteTitle} siteLogo={siteLogo} menu={menu} />
+		<main id="main-content" tabindex="-1">
 			<slot />
 		</main>
+		{showContactCTA && <ContactCTA />}
+		<SiteFooter
+			siteTitle={siteTitle}
+			company={companyResult.entry?.data}
+			menu={footerResult.data}
+		/>
 
 		<EmDashBodyEnd page={pageCtx} />
 	</body>

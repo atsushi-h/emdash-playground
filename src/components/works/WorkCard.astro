@@ -2,34 +2,33 @@
 import type { Work } from "../../../emdash-env";
 import { Image } from "emdash/ui";
 import { worksPath, formatWorkDate } from "../../utils/works";
-
 interface Props {
+	headingLevel?: "h2" | "h3";
 	slug: string;
 	work: Work;
 }
-const { slug, work } = Astro.props;
+const { slug, work, headingLevel: Heading = "h2" } = Astro.props;
 ---
 
-<article>
-	<a href={worksPath(slug)}>
-		{work.featured_image && <Image image={work.featured_image} />}
-		<h2>{work.title}</h2>
+<article class="card">
+	<a href={worksPath(slug)} class="card-media" tabindex="-1" aria-hidden="true">
+		{work.featured_image ? (
+			<Image image={work.featured_image} />
+		) : (
+			<span class="card-placeholder">MINATOTECH / WORKS</span>
+		)}
 	</a>
-	<p>{work.summary}</p>
-	{work.publishedAt && (
-		<p>
-			公開日：
-			<time datetime={work.publishedAt.toISOString()}>{formatWorkDate(work.publishedAt)}</time>
-		</p>
-	)}
+	<div class="card-body">
+		<p class="eyebrow">架空製作例・模式図</p>
+		<Heading class="card-heading">
+			<a href={worksPath(slug)}>{work.title}</a>
+		</Heading>
+		<p>{work.summary}</p>
+		{work.publishedAt && (
+			<p class="muted">
+				公開日：
+				<time datetime={work.publishedAt.toISOString()}>{formatWorkDate(work.publishedAt)}</time>
+			</p>
+		)}
+	</div>
 </article>
-
-<style>
-	article {
-		overflow-wrap: anywhere;
-	}
-	article :global(img) {
-		max-width: 100%;
-		height: auto;
-	}
-</style>

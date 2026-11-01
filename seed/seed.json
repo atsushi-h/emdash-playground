@@ -46,25 +46,111 @@
 		},
 		{
 			"slug": "pages",
-			"label": "Pages",
-			"labelSingular": "Page",
-			"urlPattern": "/{slug}",
+			"label": "固定ページ",
+			"labelSingular": "固定ページ",
+			"urlPattern": "/{slug}/",
 			"supports": ["drafts", "revisions", "preview", "search", "seo"],
 			"fields": [
 				{
 					"slug": "title",
-					"label": "Title",
+					"label": "タイトル",
 					"type": "string",
 					"required": true,
 					"searchable": true
 				},
 				{
 					"slug": "content",
-					"label": "Content",
+					"label": "本文（会社概要：代表挨拶・アクセス／事業内容：詳しい対応範囲）",
 					"type": "portableText",
 					"searchable": true
+				},
+				{
+					"slug": "lead",
+					"label": "導入文（トップにも表示）",
+					"type": "text",
+					"searchable": true
+				},
+				{
+					"slug": "featured_image",
+					"label": "ページ画像（任意）",
+					"type": "image"
+				},
+				{
+					"slug": "postal_code",
+					"label": "会社概要用：郵便番号",
+					"type": "string"
+				},
+				{
+					"slug": "address",
+					"label": "会社概要用：所在地（フッター共通）",
+					"type": "text"
+				},
+				{
+					"slug": "phone",
+					"label": "会社概要用：電話番号（PoCは未入力）",
+					"type": "string"
+				},
+				{
+					"slug": "business_hours",
+					"label": "会社概要用：営業時間",
+					"type": "string"
+				},
+				{
+					"slug": "company_facts",
+					"label": "会社概要用：基本情報（所在地等の重複入力は不要）",
+					"type": "repeater",
+					"validation": {
+						"maxItems": 20,
+						"subFields": [
+							{
+								"slug": "label",
+								"label": "項目名",
+								"type": "string",
+								"required": true
+							},
+							{
+								"slug": "value",
+								"label": "内容",
+								"type": "text",
+								"required": true
+							}
+						]
+					}
+				},
+				{
+					"slug": "service_items",
+					"label": "事業内容用：事業一覧（トップにも表示）",
+					"type": "repeater",
+					"validation": {
+						"maxItems": 12,
+						"subFields": [
+							{
+								"slug": "title",
+								"label": "事業名",
+								"type": "string",
+								"required": true
+							},
+							{
+								"slug": "summary",
+								"label": "概要",
+								"type": "text",
+								"required": true
+							},
+							{
+								"slug": "image",
+								"label": "画像（任意）",
+								"type": "image"
+							},
+							{
+								"slug": "description",
+								"label": "詳しい説明",
+								"type": "text"
+							}
+						]
+					}
 				}
-			]
+			],
+			"description": "company・services・privacy・contactは固定slugです。変更しないでください。用途別の任意項目は該当ページのみ入力します。"
 		},
 		{
 			"slug": "works",
@@ -185,8 +271,13 @@
 				},
 				{
 					"type": "custom",
-					"label": "お知らせ",
-					"url": "/news/"
+					"label": "会社概要",
+					"url": "/company/"
+				},
+				{
+					"type": "custom",
+					"label": "事業内容",
+					"url": "/services/"
 				},
 				{
 					"type": "custom",
@@ -195,8 +286,49 @@
 				},
 				{
 					"type": "custom",
+					"label": "お知らせ",
+					"url": "/news/"
+				},
+				{
+					"type": "custom",
+					"label": "お問い合わせ",
+					"url": "/contact/"
+				}
+			]
+		},
+		{
+			"name": "footer",
+			"label": "フッターメニュー",
+			"items": [
+				{
+					"type": "custom",
 					"label": "会社概要",
-					"url": "/about/"
+					"url": "/company/"
+				},
+				{
+					"type": "custom",
+					"label": "事業内容",
+					"url": "/services/"
+				},
+				{
+					"type": "custom",
+					"label": "製作実績",
+					"url": "/works/"
+				},
+				{
+					"type": "custom",
+					"label": "お知らせ",
+					"url": "/news/"
+				},
+				{
+					"type": "custom",
+					"label": "お問い合わせ",
+					"url": "/contact/"
+				},
+				{
+					"type": "custom",
+					"label": "プライバシーポリシー",
+					"url": "/privacy/"
 				}
 			]
 		}
@@ -246,6 +378,398 @@
 									"_type": "span",
 									"_key": "text",
 									"text": "株式会社ミナトテック（架空企業）｜事業内容：精密部品加工・機械設計｜従業員数：約35名"
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "company",
+				"slug": "company",
+				"status": "published",
+				"data": {
+					"title": "会社概要",
+					"lead": "精密部品加工と機械設計を通じて、ものづくりの現場に寄り添います。",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "b0",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s0",
+									"text": "代表挨拶",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b1",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s1",
+									"text": "一つひとつのご相談に向き合い、設計から部品加工まで、使う人の視点で考える。私たちはその積み重ねを大切にしています。約35名のチームで知恵と技術を持ち寄り、お客様のものづくりを支える企業を目指します。",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b2",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s2",
+									"text": "株式会社ミナトテック（架空企業） 代表者の挨拶サンプル",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b3",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s3",
+									"text": "所在地・アクセス",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b4",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s4",
+									"text": "このサイトは技術検証用のPoCです。実在の所在地・交通案内は登録していません。地図の埋め込みや来訪の受付は行っていません。",
+									"marks": []
+								}
+							]
+						}
+					],
+					"company_facts": [
+						{
+							"label": "事業内容",
+							"value": "精密部品加工・機械設計"
+						},
+						{
+							"label": "従業員数",
+							"value": "約35名（架空の設定）"
+						},
+						{
+							"label": "対象",
+							"value": "国内法人向け（架空の設定）"
+						}
+					]
+				}
+			},
+			{
+				"id": "services",
+				"slug": "services",
+				"status": "published",
+				"data": {
+					"title": "事業内容",
+					"lead": "部品の検討から設備の設計まで。ものづくりの課題に、加工と設計の両面から取り組みます。",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "b0",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s0",
+									"text": "対応範囲",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b1",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s1",
+									"text": "図面に基づく部品加工、治具・装置の構想検討、機械設計を想定した架空の事業紹介です。材質、数量、納期、加工精度などは個別の条件に応じて検討する構成としています。",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b2",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s2",
+									"text": "ご相談から製作まで",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b3",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s3",
+									"text": "ご要望の整理 → 図面・仕様の検討 → 製作方法のご提案 → 加工・組立 → 確認・納品。この流れはサイト表現用のサンプルです。実際の受注・製作は行っていません。",
+									"marks": []
+								}
+							]
+						}
+					],
+					"service_items": [
+						{
+							"title": "精密部品加工",
+							"summary": "図面の意図をくみ取り、用途に合わせた部品づくりを考えます。",
+							"description": "金属部品、治具用部品、装置向け部品などを想定。試作から小ロット製作までの相談を受ける企業像を表現しています。実際の設備・加工能力を保証する内容ではありません。"
+						},
+						{
+							"title": "機械設計",
+							"summary": "現場での使いやすさを考え、構想から機械のかたちを組み立てます。",
+							"description": "治具、搬送装置、省力化設備などの構想・機構設計を想定。部品加工との連携を含む架空のサービス紹介です。"
+						}
+					]
+				}
+			},
+			{
+				"id": "privacy",
+				"slug": "privacy",
+				"status": "published",
+				"data": {
+					"title": "プライバシーポリシー",
+					"lead": "この文書は架空企業の技術PoC用たたき台です。実運用の方針として確定したものではありません。",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "b0",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s0",
+									"text": "現在のPoCで提供する機能",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b1",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s1",
+									"text": "会社情報、お知らせ、製作実績を閲覧できます。問い合わせフォーム・メール送信・問い合わせ内容の保存は提供していません。氏名、メールアドレス、図面などをこのサイトへ送信しないでください。",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b2",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s2",
+									"text": "管理画面と技術的な情報",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b3",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s3",
+									"text": "管理画面には認証とセッションを利用する標準CMS機能があります。公開ページの閲覧に伴うアクセス記録、Cookie、ホスティング事業者による処理の詳細は、実運用する環境の設定確認後に記載します。問い合わせ機能がないことを理由に、すべての個人情報を一切処理しないと断定するものではありません。",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b4",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s4",
+									"text": "今後の問い合わせ機能に関する未確定事項",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b5",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s5",
+									"text": "取得する項目、利用目的、保存先、保存期間、削除方法、メール配信事業者、迷惑送信対策、委託先、本人からの請求窓口は未確定です。フォームを公開する前に実際のデータの流れと整合させ、内容を確認・更新します。",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b6",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s6",
+									"text": "外部サービス",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b7",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s7",
+									"text": "このフェーズでは外部地図、解析タグ、Turnstileを新たに組み込みません。今後追加する場合はサービスと送信される情報を確認して本文へ反映します。",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b8",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s8",
+									"text": "連絡先・改定",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b9",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s9",
+									"text": "架空企業のため実在する問い合わせ窓口はありません。本ページはPoCの検証状況に応じて更新します。実サービスへの転用時は事業者情報と窓口を確定してください。",
+									"marks": []
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"id": "contact",
+				"slug": "contact",
+				"status": "published",
+				"data": {
+					"title": "お問い合わせ",
+					"lead": "このサイトは架空企業の技術検証用PoCです。",
+					"content": [
+						{
+							"_type": "block",
+							"_key": "b0",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s0",
+									"text": "お問い合わせ機能について",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b1",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s1",
+									"text": "フォームによる受付、メール送信、入力内容の保存は後続フェーズで検討します。現在は実際のご相談やお見積りを受け付けていません。氏名・メールアドレス・図面などの情報を送信する機能はありません。",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b2",
+							"style": "h2",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s2",
+									"text": "検証で想定するご相談",
+									"marks": []
+								}
+							]
+						},
+						{
+							"_type": "block",
+							"_key": "b3",
+							"style": "normal",
+							"markDefs": [],
+							"children": [
+								{
+									"_type": "span",
+									"_key": "s3",
+									"text": "精密部品加工の相談、治具や機械の設計相談などを想定しています。事業内容と製作実績で、このPoCの企業像をご覧いただけます。",
+									"marks": []
 								}
 							]
 						}
