@@ -1,0 +1,135 @@
+---
+import { getSeoMeta, type getEmDashEntry } from "emdash";
+import { Image, PortableText } from "emdash/ui";
+import Base from "../layouts/Base.astro";
+import PageHeader from "./PageHeader.astro";
+import Breadcrumbs from "./Breadcrumbs.astro";
+import ServiceCard from "./ServiceCard.astro";
+import { companyRows } from "../utils/corporate";
+import { resolveStarterSiteIdentity } from "../utils/site-identity";
+interface Props {
+	result: Awaited<ReturnType<typeof getEmDashEntry<"pages">>>;
+	slug: string;
+}
+const { result, slug } = Astro.props;
+const page = result.entry;
+const defaults: Record<string, { title: string; eyebrow: string }> = {
+	company: { title: "会社概要", eyebrow: "COMPANY" },
+	services: { title: "事業内容", eyebrow: "SERVICES" },
+	privacy: { title: "プライバシーポリシー", eyebrow: "PRIVACY POLICY" },
+	contact: { title: "お問い合わせ", eyebrow: "CONTACT" },
+};
+const fallback = defaults[slug] ?? { title: page?.data.title ?? "固定ページ", eyebrow: "" };
+const settings = Astro.locals.corporateChrome![0];
+const { siteTitle } = resolveStarterSiteIdentity(settings.data);
+const path = `/${encodeURIComponent(slug)}/`;
+const seo = page
+	? getSeoMeta(page, {
+			siteTitle,
+			siteUrl: Astro.url.origin,
+			path,
+			defaultDescription: page.data.lead,
+		})
+	: undefined;
+const title = page?.data.title ?? fallback.title;
+---
+
+<Base
+	title={seo?.title ?? title}
+	pageTitle={seo?.ogTitle}
+	description={seo?.description}
+	image={seo?.ogImage}
+	canonical={seo?.canonical ?? new URL(path, Astro.url.origin).href}
+	isPreview={result.isPreview}
+	content={page ? { collection: "pages", id: page.data.id, slug: page.id } : undefined}
+	showContactCTA={slug !== "contact"}
+>
+	<PageHeader title={title} lead={page?.data.lead} eyebrow={fallback.eyebrow}>
+		<span slot="title" {...page?.edit.title}>
+			{title}
+		</span>
+		{page?.data.lead && (
+			<span slot="lead" {...page.edit.lead}>
+				{page.data.lead}
+			</span>
+		)}
+	</PageHeader>
+	<Breadcrumbs items={[{ label: title }]} />
+	<div class="container section page-content">
+		{result.isPreview && (
+			<aside role="status" class="preview-banner">
+				プレビュー表示です。変更内容は公開するまで一般表示に反映されません。
+				<a href={path}>通常表示を開く</a>
+			</aside>
+		)}
+		{slug === "contact" && (
+			<aside class="notice">
+				<strong>現在、お問い合わせは受け付けていません。</strong>
+				<p>
+					架空企業のPoCのため、フォーム送信・メール配信・個人情報の保存機能は未提供です。実在する連絡先は掲載していません。
+				</p>
+			</aside>
+		)}
+		{slug === "privacy" && (
+			<aside class="notice">
+				架空サイト用のたたき台です。実運用する環境とデータの取扱いを確認してから内容を確定してください。
+			</aside>
+		)}
+		{page?.data.featured_image && (
+			<div class="page-image" {...page.edit.featured_image}>
+				<Image image={page.data.featured_image} />
+			</div>
+		)}
+		{slug === "company" && page && (
+			<section class="reading-width" aria-labelledby="company-facts-title">
+				<h2 id="company-facts-title">会社基本情報</h2>
+				<dl class="facts">
+					{companyRows(page.data, siteTitle).map((row) => (
+						<div>
+							<dt>{row.label}</dt>
+							<dd>{row.value}</dd>
+						</div>
+					))}
+				</dl>
+			</section>
+		)}
+		{slug === "services" && page && (page.data.service_items?.length ?? 0) > 0 && (
+			<div class="card-grid service-items" {...page.edit.service_items}>
+				{page.data.service_items?.map((item, index) => (
+					<ServiceCard item={item} index={index} detail />
+				))}
+			</div>
+		)}
+		{page && (
+			<div class="prose reading-width" {...page.edit.content}>
+				<PortableText value={page.data.content} />
+			</div>
+		)}
+		{slug === "contact" && (
+			<div class="reading-width actions">
+				<a class="button" href="/services/">
+					事業内容を見る
+				</a>
+				<a class="button button-secondary" href="/works/">
+					製作実績を見る
+				</a>
+				<a href="/privacy/">プライバシーポリシー</a>
+			</div>
+		)}
+	</div>
+</Base>
+<style>
+	.page-content {
+		padding-top: var(--space-4);
+	}
+	.page-image {
+		max-width: var(--reading-width);
+		margin: 0 auto var(--space-6);
+	}
+	.service-items {
+		margin-bottom: var(--space-6);
+	}
+	.notice p {
+		margin-bottom: 0;
+	}
+</style>

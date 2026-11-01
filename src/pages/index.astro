@@ -1,60 +1,250 @@
 ---
-import { getEmDashCollection, getSiteSettingsWithCacheHint } from "emdash";
-import { Image } from "emdash/ui";
-import { newsPath, formatNewsDate, contentUnavailable } from "../utils/news";
+import { getEmDashCollection, getEmDashEntry, getSiteSettingsWithCacheHint } from "emdash";
 import Base from "../layouts/Base.astro";
+import ServiceCard from "../components/ServiceCard.astro";
+import WorkCard from "../components/works/WorkCard.astro";
+import NewsList from "../components/NewsList.astro";
+import { contentUnavailable, protectPreview } from "../utils/news";
 import { resolveStarterSiteIdentity } from "../utils/site-identity";
 
-const {
-	entries: posts,
-	cacheHint,
-	error,
-} = await getEmDashCollection("posts", {
-	status: "published",
-	orderBy: { published_at: "desc" },
-	limit: 10,
-});
-const settings = await getSiteSettingsWithCacheHint();
-if (Astro.cache?.enabled) Astro.cache.set(settings.cacheHint);
+const results = await Promise.all([
+	getSiteSettingsWithCacheHint(),
+	getEmDashEntry("pages", "company"),
+	getEmDashEntry("pages", "services"),
+	getEmDashCollection("works", {
+		status: "published",
+		orderBy: { published_at: "desc" },
+		limit: 3,
+	}),
+	getEmDashCollection("posts", {
+		status: "published",
+		orderBy: { published_at: "desc" },
+		limit: 3,
+	}),
+]).catch(() => null);
+if (!results || results.slice(1).some((result) => "error" in result && result.error))
+	return contentUnavailable();
+const [settings, company, services, works, news] = results;
+if (Astro.cache?.enabled) for (const result of results) Astro.cache.set(result.cacheHint);
 const { siteTitle, siteTagline } = resolveStarterSiteIdentity(settings.data);
-if (error) return contentUnavailable();
-if (Astro.cache?.enabled) Astro.cache.set(cacheHint);
+protectPreview(Astro.response, Astro.url, false);
 ---
 
-<Base title={siteTitle} description={siteTagline}>
-	<h1>{siteTitle}</h1>
-	<p>{siteTagline}</p>
-	<p>精密部品加工・機械設計に取り組む約35名の架空企業のPoCサイトです。</p>
-	<p>
-		<a href="/works/">製作実績を見る</a>
-	</p>
-	<h2>お知らせ</h2>
-
-	{posts.length === 0 ? (
-		<p>現在、お知らせはありません。</p>
-	) : (
-		<ul>
-			{posts.map((post) => (
-				<li>
-					<a href={newsPath(post.id)}>
-						{post.data.featured_image && (
-							<div {...post.edit.featured_image}>
-								<Image image={post.data.featured_image} />
-							</div>
-						)}
-						<h2 {...post.edit.title}>{post.data.title}</h2>
+<Base title={siteTitle} description={siteTagline} canonical={new URL("/", Astro.url.origin).href}>
+	<section class="hero">
+		<div class="container hero-inner">
+			<div class="hero-copy">
+				<p class="eyebrow">MINATOTECH / MANUFACTURING & DESIGN</p>
+				<h1>{siteTagline}</h1>
+				<p class="hero-name">{siteTitle}</p>
+				<p class="hero-note">精密部品加工と機械設計を行う架空企業の技術検証サイトです。</p>
+				<div class="actions">
+					<a href="/services/" class="button">
+						事業内容を見る <span aria-hidden="true">→</span>
 					</a>
-					{post.data.excerpt && <p {...post.edit.excerpt}>{post.data.excerpt}</p>}
-					{post.data.publishedAt && (
-						<time datetime={post.data.publishedAt.toISOString()}>
-							{formatNewsDate(post.data.publishedAt)}
-						</time>
-					)}
-				</li>
-			))}
-		</ul>
+					<a href="/works/" class="button button-secondary">
+						製作実績を見る
+					</a>
+				</div>
+			</div>
+			<div class="hero-art" aria-hidden="true">
+				<div class="drawing-grid">
+					<div class="drawing-ring">
+						<div class="drawing-center"></div>
+					</div>
+					<span class="drawing-caption">
+						PROCESS × DESIGN
+						<br />
+						MINATOTECH
+					</span>
+					<span class="drawing-number">01 / 02</span>
+				</div>
+				<p>加工と設計で、ものづくりを支える。</p>
+			</div>
+		</div>
+	</section>
+	{company.entry?.data.lead && (
+		<section class="section container introduction">
+			<div>
+				<p class="eyebrow">ABOUT US</p>
+				<h2>
+					一つひとつの課題に、
+					<br />
+					向き合うものづくり。
+				</h2>
+			</div>
+			<div>
+				<p class="lead text-lines">{company.entry.data.lead}</p>
+				<a href="/company/">
+					ミナトテックについて <span aria-hidden="true">→</span>
+				</a>
+			</div>
+		</section>
 	)}
-	<p>
-		<a href="/news/">お知らせをすべて見る</a>
-	</p>
+	{services.entry && (
+		<section class="section surface">
+			<div class="container">
+				<div class="section-heading">
+					<div>
+						<p class="eyebrow">SERVICES</p>
+						<h2>事業内容</h2>
+					</div>
+					<a href="/services/">
+						事業内容をすべて見る <span aria-hidden="true">→</span>
+					</a>
+				</div>
+				{services.entry.data.lead && <p class="lead text-lines">{services.entry.data.lead}</p>}
+				<div class="card-grid">
+					{services.entry.data.service_items?.slice(0, 2).map((item, index) => (
+						<ServiceCard item={item} index={index} />
+					))}
+				</div>
+			</div>
+		</section>
+	)}
+	<section class="section container">
+		<div class="section-heading">
+			<div>
+				<p class="eyebrow">WORKS</p>
+				<h2>製作実績</h2>
+			</div>
+			<a href="/works/">
+				製作実績をすべて見る <span aria-hidden="true">→</span>
+			</a>
+		</div>
+		<p class="muted">掲載事例は架空の製作例です。画像は実物写真ではなく模式図です。</p>
+		{works.entries.length ? (
+			<ul class="card-grid">
+				{works.entries.map((work) => (
+					<li>
+						<WorkCard headingLevel="h3" slug={work.id} work={work.data} />
+					</li>
+				))}
+			</ul>
+		) : (
+			<p class="notice">現在、公開している製作実績はありません。</p>
+		)}
+	</section>
+	<section class="section surface">
+		<div class="container news-section">
+			<div>
+				<p class="eyebrow">NEWS</p>
+				<h2>お知らせ</h2>
+				<a href="/news/">
+					お知らせをすべて見る <span aria-hidden="true">→</span>
+				</a>
+			</div>
+			<NewsList headingLevel="h3" posts={news.entries} />
+		</div>
+	</section>
 </Base>
+<style>
+	.hero {
+		background: var(--color-surface);
+		border-bottom: 1px solid var(--color-border);
+		padding-block: clamp(3rem, 7vw, 6rem);
+	}
+	.hero-inner {
+		display: grid;
+		grid-template-columns: 1.35fr 1fr;
+		gap: var(--space-6);
+		align-items: center;
+	}
+	.hero h1 {
+		font-size: var(--text-title);
+		line-height: 1.65;
+		letter-spacing: 0.055em;
+		text-wrap: balance;
+	}
+	.hero-name {
+		font-weight: 700;
+		color: var(--color-primary);
+	}
+	.hero-note {
+		color: var(--color-muted);
+		font-size: var(--text-small);
+	}
+	.hero-art {
+		min-width: 0;
+	}
+	.hero-art > p {
+		font-size: var(--text-small);
+		color: var(--color-muted);
+		margin: var(--space-3) 0 0;
+	}
+	.drawing-grid {
+		aspect-ratio: 1.08;
+		position: relative;
+		overflow: hidden;
+		display: grid;
+		place-items: center;
+		background-color: var(--color-primary);
+		background-image:
+			linear-gradient(var(--color-primary-deep) 1px, transparent 1px),
+			linear-gradient(90deg, var(--color-primary-deep) 1px, transparent 1px);
+		background-size: 2rem 2rem;
+		color: var(--color-footer-muted);
+		border-radius: var(--radius-card);
+	}
+	.drawing-ring {
+		width: 65%;
+		aspect-ratio: 1;
+		border: 1px solid var(--color-footer-muted);
+		border-radius: 50%;
+		display: grid;
+		place-items: center;
+		transform: rotate(-25deg);
+		position: relative;
+	}
+	.drawing-ring::before,
+	.drawing-ring::after {
+		content: "";
+		position: absolute;
+		width: 130%;
+		height: 1px;
+		background: var(--color-footer-muted);
+	}
+	.drawing-ring::after {
+		transform: rotate(90deg);
+	}
+	.drawing-center {
+		width: 57%;
+		aspect-ratio: 1;
+		border: 2px solid var(--color-on-primary);
+		border-radius: var(--radius-card);
+		transform: rotate(45deg);
+		background: var(--color-primary);
+		z-index: 1;
+	}
+	.drawing-caption {
+		position: absolute;
+		top: var(--space-4);
+		left: var(--space-4);
+		font-size: 0.7rem;
+		letter-spacing: 0.12em;
+		line-height: 1.7;
+	}
+	.drawing-number {
+		position: absolute;
+		right: var(--space-4);
+		bottom: var(--space-4);
+		font-size: var(--text-small);
+	}
+	.introduction,
+	.news-section {
+		display: grid;
+		grid-template-columns: 1fr 1.5fr;
+		gap: var(--space-6);
+	}
+	@media (max-width: 48rem) {
+		.hero-inner,
+		.introduction,
+		.news-section {
+			grid-template-columns: 1fr;
+			gap: var(--space-5);
+		}
+		.hero-art {
+			max-width: 28rem;
+		}
+	}
+</style>

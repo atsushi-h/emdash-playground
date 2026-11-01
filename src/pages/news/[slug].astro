@@ -2,8 +2,10 @@
 import { getEmDashEntry, getSeoMeta, decodeSlug, getSiteSettingsWithCacheHint } from "emdash";
 import { Image, PortableText } from "emdash/ui";
 import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import { resolveStarterSiteIdentity } from "../../utils/site-identity";
-import { newsPath, formatNewsDate, contentUnavailable } from "../../utils/news";
+import { newsPath, formatNewsDate, contentUnavailable, protectPreview } from "../../utils/news";
 
 if (!Astro.url.pathname.endsWith("/")) {
 	const target = new URL(Astro.url);
@@ -26,6 +28,7 @@ const seo = getSeoMeta(post, {
 	siteUrl: Astro.url.origin,
 	path: newsPath(post.id),
 });
+protectPreview(Astro.response, Astro.url, result.isPreview);
 ---
 
 <Base
@@ -39,29 +42,55 @@ const seo = getSeoMeta(post, {
 	publishedTime={post.data.publishedAt?.toISOString()}
 	modifiedTime={post.data.updatedAt.toISOString()}
 >
-	{isPreview && (
-		<aside role="status" class="preview-banner">
-			プレビュー表示です。下書きの変更内容は公開操作まで一般表示に反映されません。
-			<a href={newsPath(post.id)}>通常表示を開く</a>
-		</aside>
-	)}
-	<article>
-		<h1 {...post.edit.title}>{post.data.title}</h1>
-		{post.data.publishedAt && (
-			<time datetime={post.data.publishedAt.toISOString()}>
-				{formatNewsDate(post.data.publishedAt)}
-			</time>
+	<PageHeader title={post.data.title} eyebrow="NEWS">
+		<span slot="title" {...post.edit.title}>
+			{post.data.title}
+		</span>
+	</PageHeader>
+	<Breadcrumbs items={[{ label: "お知らせ", href: "/news/" }, { label: post.data.title }]} />
+	<div class="container section detail-content">
+		{isPreview && (
+			<aside role="status" class="preview-banner">
+				プレビュー表示です。下書きの変更内容は公開操作まで一般表示に反映されません。
+				<a href={newsPath(post.id)}>通常表示を開く</a>
+			</aside>
 		)}
-		{post.data.featured_image && (
-			<div {...post.edit.featured_image}>
-				<Image image={post.data.featured_image} />
+		<article class="reading-width">
+			{post.data.publishedAt && (
+				<time datetime={post.data.publishedAt.toISOString()}>
+					{formatNewsDate(post.data.publishedAt)}
+				</time>
+			)}
+			{post.data.featured_image && (
+				<div {...post.edit.featured_image}>
+					<Image image={post.data.featured_image} />
+				</div>
+			)}
+			<div class="prose" {...post.edit.content}>
+				<PortableText value={post.data.content} />
 			</div>
-		)}
-		<div {...post.edit.content}>
-			<PortableText value={post.data.content} />
-		</div>
-	</article>
-	<p>
-		<a href="/news/">お知らせ一覧へ戻る</a>
-	</p>
+		</article>
+		<p>
+			<a href="/news/">お知らせ一覧へ戻る</a>
+		</p>
+	</div>
 </Base>
+
+<style>
+	.detail-content {
+		padding-top: var(--space-4);
+	}
+	article > div {
+		margin-block: var(--space-5);
+	}
+	article > p {
+		white-space: pre-line;
+	}
+	article :global(img) {
+		border-radius: var(--radius-card);
+	}
+	article + p {
+		max-width: var(--reading-width);
+		margin: var(--space-6) auto 0;
+	}
+</style>

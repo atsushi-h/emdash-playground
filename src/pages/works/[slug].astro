@@ -2,9 +2,11 @@
 import { getEmDashEntry, getSeoMeta, decodeSlug, getSiteSettingsWithCacheHint } from "emdash";
 import { Image, PortableText } from "emdash/ui";
 import Base from "../../layouts/Base.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import WorkGallery from "../../components/works/WorkGallery.astro";
 import { resolveStarterSiteIdentity } from "../../utils/site-identity";
-import { contentUnavailable } from "../../utils/news";
+import { contentUnavailable, protectPreview } from "../../utils/news";
 import { worksPath, formatWorkDate } from "../../utils/works";
 
 if (!Astro.url.pathname.endsWith("/")) {
@@ -34,6 +36,7 @@ const specifications = [
 	{ label: "加工方法", value: work.data.process, edit: work.edit.process },
 	{ label: "対象業種", value: work.data.industry, edit: work.edit.industry },
 ].filter((item) => item.value?.trim());
+protectPreview(Astro.response, Astro.url, result.isPreview);
 ---
 
 <Base
@@ -47,70 +50,74 @@ const specifications = [
 	publishedTime={work.data.publishedAt?.toISOString()}
 	modifiedTime={work.data.updatedAt.toISOString()}
 >
-	{isPreview && (
-		<aside role="status">
-			プレビュー表示です。下書きの変更内容は公開操作まで一般表示に反映されません。{" "}
-			<a href={worksPath(work.id)}>通常表示を開く</a>
-		</aside>
-	)}
-	<article class="work-detail">
-		<h1 {...work.edit.title}>{work.data.title}</h1>
-		<p {...work.edit.summary}>{work.data.summary}</p>
-		{work.data.publishedAt && (
-			<p>
-				公開日：
-				<time datetime={work.data.publishedAt.toISOString()}>
-					{formatWorkDate(work.data.publishedAt)}
-				</time>
-			</p>
+	<PageHeader title={work.data.title} eyebrow="WORKS">
+		<span slot="title" {...work.edit.title}>
+			{work.data.title}
+		</span>
+	</PageHeader>
+	<Breadcrumbs items={[{ label: "製作実績", href: "/works/" }, { label: work.data.title }]} />
+	<div class="container section detail-content">
+		{isPreview && (
+			<aside role="status" class="preview-banner">
+				プレビュー表示です。下書きの変更内容は公開操作まで一般表示に反映されません。{" "}
+				<a href={worksPath(work.id)}>通常表示を開く</a>
+			</aside>
 		)}
-		{work.data.featured_image && (
-			<div {...work.edit.featured_image}>
-				<Image image={work.data.featured_image} />
+		<article class="reading-width">
+			<p {...work.edit.summary}>{work.data.summary}</p>
+			{work.data.publishedAt && (
+				<p>
+					公開日：
+					<time datetime={work.data.publishedAt.toISOString()}>
+						{formatWorkDate(work.data.publishedAt)}
+					</time>
+				</p>
+			)}
+			{work.data.featured_image && (
+				<div {...work.edit.featured_image}>
+					<Image image={work.data.featured_image} />
+				</div>
+			)}
+			{specifications.length > 0 && (
+				<dl class="facts">
+					{specifications.map((item) => (
+						<div>
+							<dt>{item.label}</dt>
+							<dd {...item.edit}>{item.value}</dd>
+						</div>
+					))}
+				</dl>
+			)}
+			{work.data.content && work.data.content.length > 0 && (
+				<div class="prose" {...work.edit.content}>
+					<PortableText value={work.data.content} />
+				</div>
+			)}
+			<div {...work.edit.gallery}>
+				<WorkGallery gallery={work.data.gallery} />
 			</div>
-		)}
-		{specifications.length > 0 && (
-			<dl>
-				{specifications.map((item) => (
-					<div>
-						<dt>{item.label}</dt>
-						<dd {...item.edit}>{item.value}</dd>
-					</div>
-				))}
-			</dl>
-		)}
-		{work.data.content && work.data.content.length > 0 && (
-			<div {...work.edit.content}>
-				<PortableText value={work.data.content} />
-			</div>
-		)}
-		<div {...work.edit.gallery}>
-			<WorkGallery gallery={work.data.gallery} />
-		</div>
-	</article>
-	<p>
-		<a href="/works/">製作実績一覧へ戻る</a>
-	</p>
+		</article>
+		<p>
+			<a href="/works/">製作実績一覧へ戻る</a>
+		</p>
+	</div>
 </Base>
 
 <style>
-	.work-detail {
-		max-width: 70rem;
-		overflow-wrap: anywhere;
+	.detail-content {
+		padding-top: var(--space-4);
 	}
-	.work-detail :global(img) {
-		max-width: 100%;
-		height: auto;
+	article > div {
+		margin-block: var(--space-5);
 	}
-	dl > div {
-		display: flex;
-		gap: 1rem;
-		margin-block: 0.5rem;
+	article > p {
+		white-space: pre-line;
 	}
-	dt {
-		font-weight: bold;
+	article :global(img) {
+		border-radius: var(--radius-card);
 	}
-	dd {
-		margin: 0;
+	article + p {
+		max-width: var(--reading-width);
+		margin: var(--space-6) auto 0;
 	}
 </style>

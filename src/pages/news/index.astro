@@ -1,8 +1,10 @@
 ---
 import { getEmDashCollection } from "emdash";
-import { Image } from "emdash/ui";
+import NewsList from "../../components/NewsList.astro";
 import Base from "../../layouts/Base.astro";
-import { newsPath, formatNewsDate, contentUnavailable } from "../../utils/news";
+import PageHeader from "../../components/PageHeader.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
+import { contentUnavailable, protectPreview } from "../../utils/news";
 
 if (!Astro.url.pathname.endsWith("/")) {
 	const target = new URL(Astro.url);
@@ -21,6 +23,7 @@ if (Astro.cache?.enabled) Astro.cache.set(result.cacheHint);
 const { entries: posts, nextCursor } = result;
 const canonical = new URL("/news/", Astro.url.origin);
 if (cursor) canonical.searchParams.set("cursor", cursor);
+protectPreview(Astro.response, Astro.url, false);
 ---
 
 <Base
@@ -28,29 +31,17 @@ if (cursor) canonical.searchParams.set("cursor", cursor);
 	description="株式会社ミナトテックからのお知らせをご案内します。"
 	canonical={canonical.href}
 >
-	<h1>お知らせ</h1>
-	{posts.length === 0 ? (
-		<p>現在、お知らせはありません。</p>
-	) : (
-		<ul class="news-list">
-			{posts.map((post) => (
-				<li>
-					<a href={newsPath(post.id)}>
-						{post.data.featured_image && <Image image={post.data.featured_image} />}
-						<h2>{post.data.title}</h2>
-					</a>
-					{post.data.publishedAt && (
-						<time datetime={post.data.publishedAt.toISOString()}>
-							{formatNewsDate(post.data.publishedAt)}
-						</time>
-					)}
-					{post.data.excerpt && <p>{post.data.excerpt}</p>}
-				</li>
-			))}
-		</ul>
-	)}
-	<nav aria-label="ページ送り">
-		{cursor && <a href="/news/">最初のページ</a>}
-		{nextCursor && <a href={`/news/?cursor=${encodeURIComponent(nextCursor)}`}>次のページ</a>}
-	</nav>
+	<PageHeader
+		title="お知らせ"
+		eyebrow="NEWS"
+		lead="ミナトテックの取り組みやご案内をお届けします。"
+	/>
+	<Breadcrumbs items={[{ label: "お知らせ" }]} />
+	<div class="container section">
+		<NewsList posts={posts} images />
+		<nav class="pagination" aria-label="ページ送り">
+			{cursor && <a href="/news/">最初のページ</a>}
+			{nextCursor && <a href={`/news/?cursor=${encodeURIComponent(nextCursor)}`}>次のページ</a>}
+		</nav>
+	</div>
 </Base>

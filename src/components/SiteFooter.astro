@@ -1,0 +1,106 @@
+---
+import type { getMenuWithCacheHint } from "emdash";
+import type { Page } from "../../emdash-env";
+interface Props {
+	siteTitle: string;
+	company?: Page;
+	menu: Awaited<ReturnType<typeof getMenuWithCacheHint>>["data"];
+}
+const { siteTitle, company, menu } = Astro.props;
+---
+
+<footer class="site-footer">
+	<div class="container">
+		<div class="footer-main">
+			<div>
+				<a class="footer-brand" href="/">
+					{siteTitle}
+				</a>
+				<p class="footer-note">架空企業の技術検証用PoCサイト</p>
+				{company && (
+					<address>
+						{company.postal_code && <div>〒{company.postal_code}</div>}
+						{company.address && <div class="text-lines">{company.address}</div>}
+						{company.phone && <div>電話：{company.phone}（架空の登録情報）</div>}
+						{company.business_hours && <div>営業時間：{company.business_hours}</div>}
+					</address>
+				)}
+			</div>
+			<nav aria-label="フッターメニュー">
+				<ul>
+					{menu?.items.map((item) => (
+						<li>
+							<a
+								href={item.url}
+								target={item.target}
+								rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+							>
+								{item.label}
+							</a>
+						</li>
+					))}
+				</ul>
+			</nav>
+		</div>
+		<div class="footer-bottom">
+			<p>掲載情報・製作例は架空です。実際のご依頼は受け付けていません。</p>
+			<p>© {siteTitle}</p>
+		</div>
+	</div>
+</footer>
+<style>
+	.site-footer {
+		color: var(--color-on-primary);
+		background: var(--color-primary);
+		padding-block: var(--space-6) var(--space-4);
+	}
+	a {
+		color: var(--color-on-primary);
+	}
+	a:hover {
+		color: var(--color-footer-muted);
+	}
+	.footer-main {
+		display: flex;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: var(--space-5);
+		padding-bottom: var(--space-5);
+	}
+	.footer-brand {
+		font-size: var(--text-lead);
+		font-weight: 700;
+		text-decoration: none;
+	}
+	.footer-note,
+	address {
+		font-size: var(--text-small);
+		color: var(--color-footer-muted);
+		font-style: normal;
+	}
+	.footer-note {
+		margin-top: var(--space-2);
+	}
+	ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: var(--space-3) var(--space-5);
+		font-size: var(--text-small);
+	}
+	.footer-bottom {
+		border-top: 1px solid var(--color-footer-muted);
+		padding-top: var(--space-4);
+		color: var(--color-footer-muted);
+		font-size: 0.75rem;
+		display: flex;
+		justify-content: space-between;
+		gap: var(--space-3);
+		flex-wrap: wrap;
+	}
+	.footer-bottom p {
+		margin: 0;
+	}
+</style>

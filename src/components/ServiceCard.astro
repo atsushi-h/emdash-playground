@@ -1,0 +1,41 @@
+---
+import { Image } from "emdash/ui";
+import type { Page } from "../../emdash-env";
+interface Props {
+	item: NonNullable<Page["service_items"]>[number];
+	index: number;
+	detail?: boolean;
+}
+const { item, index, detail = false } = Astro.props;
+const Heading = detail ? "h2" : "h3";
+---
+
+<article class="card service-card">
+	{item.image && (
+		<div class="card-media">
+			<Image image={item.image} />
+		</div>
+	)}
+	<div class="card-body">
+		<p class="eyebrow">SERVICE {String(index + 1).padStart(2, "0")}</p>
+		<Heading>{item.title}</Heading>
+		<p class="summary text-lines">{item.summary}</p>
+		{detail && item.description && <p class="text-lines">{item.description}</p>}
+		{!detail && (
+			<a href="/services/">
+				事業内容を詳しく見る <span aria-hidden="true">→</span>
+			</a>
+		)}
+	</div>
+</article>
+<style>
+	.card-body {
+		padding: clamp(1.5rem, 3vw, 2.5rem);
+	}
+	.service-card {
+		border-top: 3px solid var(--color-accent);
+	}
+	.summary {
+		font-weight: 700;
+	}
+</style>

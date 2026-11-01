@@ -1,0 +1,187 @@
+---
+import type { getMenuWithCacheHint } from "emdash";
+import type { MediaReference } from "../utils/site-identity";
+import LiveSearch from "emdash/ui/search";
+interface Props {
+	siteTitle: string;
+	siteLogo: MediaReference | null;
+	menu: Awaited<ReturnType<typeof getMenuWithCacheHint>>["data"];
+}
+const { siteTitle, siteLogo, menu } = Astro.props;
+const path = Astro.url.pathname;
+---
+
+<header class="site-header">
+	<div class="container header-inner">
+		<a class="brand" href="/">
+			{siteLogo?.url ? (
+				<img src={siteLogo.url} alt={siteLogo.alt || siteTitle} width="240" height="48" />
+			) : (
+				<>
+					<span class="brand-mark" aria-hidden="true">
+						M
+					</span>
+					<span>
+						{siteTitle}
+						<small>精密部品加工・機械設計</small>
+					</span>
+				</>
+			)}
+		</a>
+		<nav aria-label="メインメニュー">
+			<ul>
+				{menu?.items.map((item) => (
+					<li>
+						<a
+							href={item.url}
+							target={item.target}
+							rel={item.target === "_blank" ? "noopener noreferrer" : undefined}
+							aria-current={
+								path.replace(/\/$/, "") === item.url.replace(/\/$/, "") ? "page" : undefined
+							}
+							class:list={[{ "nav-contact": item.url === "/contact/" }]}
+						>
+							{item.label}
+						</a>
+					</li>
+				))}
+			</ul>
+		</nav>
+	</div>
+	<div class="header-utility container">
+		<span>架空企業の技術検証用PoCサイト</span>
+		<label class="site-search">
+			<span class="visually-hidden">サイト内検索（3文字以上）</span>
+			<LiveSearch
+				placeholder="サイト内を検索（3文字以上）"
+				collections={["posts", "pages", "works"]}
+				minChars={3}
+			>
+				<span slot="loading" class="emdash-live-search-loading">
+					検索中…
+				</span>
+				<span slot="no-results" class="emdash-live-search-no-results">
+					該当する情報はありません。
+				</span>
+			</LiveSearch>
+		</label>
+	</div>
+</header>
+<style>
+	.site-header {
+		border-bottom: 1px solid var(--color-border);
+		background: var(--color-bg);
+	}
+	.header-inner {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: var(--space-5);
+		padding-block: var(--space-4);
+	}
+	.brand {
+		display: flex;
+		align-items: center;
+		gap: var(--space-3);
+		color: var(--color-primary);
+		text-decoration: none;
+		font-weight: 700;
+		font-size: 1.125rem;
+		line-height: 1.5;
+		min-width: 0;
+		flex-shrink: 1;
+	}
+	.brand small {
+		display: block;
+		font-size: 0.7rem;
+		color: var(--color-muted);
+		font-weight: 400;
+		margin-top: var(--space-1);
+	}
+	.brand-mark {
+		flex-shrink: 0;
+		display: grid;
+		place-items: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		color: var(--color-on-primary);
+		background: var(--color-primary);
+		font-size: 1.5rem;
+	}
+	.brand img {
+		width: auto;
+		max-width: 15rem;
+		height: auto;
+		max-height: 3rem;
+		object-fit: contain;
+	}
+	ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-1) var(--space-4);
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		align-items: center;
+	}
+	nav a {
+		display: block;
+		padding: var(--space-2) 0;
+		color: var(--color-primary);
+		text-decoration: none;
+		font-weight: 700;
+		font-size: var(--text-small);
+	}
+	nav a:hover,
+	nav a[aria-current="page"] {
+		text-decoration: underline;
+		text-decoration-thickness: 2px;
+	}
+	nav .nav-contact {
+		padding: var(--space-2) var(--space-3);
+		color: var(--color-on-primary);
+		background: var(--color-accent);
+		border-radius: var(--radius-card);
+	}
+	.header-utility {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-3);
+		padding-bottom: var(--space-3);
+		color: var(--color-muted);
+		font-size: 0.75rem;
+	}
+	.site-search {
+		width: min(100%, 21rem);
+	}
+	.site-search :global(.emdash-live-search) {
+		display: block;
+		width: 100%;
+	}
+	@media (max-width: 65rem) {
+		.header-inner {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: var(--space-3);
+		}
+		nav {
+			width: 100%;
+		}
+		ul {
+			justify-content: flex-start;
+		}
+	}
+	@media (max-width: 40rem) {
+		.header-utility {
+			align-items: flex-start;
+			flex-direction: column;
+		}
+		.site-search {
+			width: 100%;
+		}
+		ul {
+			gap: var(--space-1) var(--space-3);
+		}
+	}
+</style>
