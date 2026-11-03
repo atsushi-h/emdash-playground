@@ -94,3 +94,15 @@ If you want a designed template instead, switch to `blog`, `portfolio`, or `mark
 - Don't treat this as a finished design. The unstyled output is intentional; shipping it as-is looks unfinished because it is.
 - Don't add component libraries (Tailwind UI, shadcn, etc.) without considering what they bring with them. The template is small on purpose.
 - Don't recreate the blog template's three-column reading view here. If that's what you want, start from `blog`.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs live in GitHub Issues for `atsushi-h/emdash-playground`.
+See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: root `GLOSSARY.md` and `docs/adr/`.
+See `docs/agents/domain.md`.
