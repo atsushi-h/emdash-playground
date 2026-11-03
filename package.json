@@ -11,7 +11,7 @@
 		"build:production": "bun run deploy:prepare && EMDASH_DEPLOYMENT=production astro build",
 		"deploy": "bun run build:production && wrangler deploy --config dist/server/wrangler.json",
 		"test": "node --test scripts/*.test.mjs",
-		"types:bindings": "wrangler types worker-bindings.d.ts --include-runtime=false --strict-vars=false",
+		"types:bindings": "wrangler types worker-bindings.d.ts --config wrangler.jsonc --include-runtime=false --strict-vars=false",
 		"typecheck": "astro check",
 		"format": "oxfmt --write .",
 		"format:check": "oxfmt --check .",
