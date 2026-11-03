@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.4"
+      - run: bun install --frozen-lockfile
+      - name: Check formatting
+        run: bun run format:check
+      - name: Check lint
+        run: bun run lint
+      - name: Check types
+        run: bun run typecheck
+      - run: bun run test
+      # Build the same Access-enabled code as production, without credentials.
+      - name: Build private site with fixture settings
+        run: bun run build:production
+        env:
+          CLOUDFLARE_ACCOUNT_ID: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+          CF_WORKER_NAME: private-cms
+          CF_D1_DATABASE_NAME: private-cms
+          CF_D1_DATABASE_ID: 11111111-2222-4333-8444-555555555555
+          CF_R2_BUCKET_NAME: private-cms-media
+          CF_SESSION_NAMESPACE_ID: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+          CF_ACCESS_TEAM_DOMAIN: private-team.cloudflareaccess.com
+          CF_ACCESS_AUDIENCE: cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          CF_ALLOWED_EMAIL: owner@example.com
+          EMDASH_SITE_URL: https://private-cms.example.workers.dev
+      - name: Validate Worker package without deploying
+        run: bunx wrangler deploy --config dist/server/wrangler.json --dry-run
