@@ -71,12 +71,12 @@ directories are excluded from formatting and linting.
 
 ## Deploying
 
-```bash
-bun wrangler login
-bun run deploy
-```
+GitHub ActionsからCloudflare Workersへデプロイし、サイト全体をGoogle認証で保護します。
+初回は手動起動し、データ移行・アクセス制限を検証した後に`main`更新での自動デプロイを有効にします。
+事前にD1・非公開R2・セッション用KV・Cloudflare Accessを用意してください。
 
-The first deployment provisions the named D1 database and R2 bucket from `wrangler.jsonc`. See [Deploy to Cloudflare](https://docs.emdashcms.com/deployment/cloudflare/) for production setup, or use the deploy button above.
+設定するVariables / Secretsと初回移行は[デプロイ手順](docs/cloudflare-deployment.md)、決定事項は[デプロイ仕様](docs/cloudflare-deployment-spec.md)を参照してください。
+`bun run deploy`も本番設定の生成と検証を必須とし、設定不足では公開しません。
 
 ## See Also
 

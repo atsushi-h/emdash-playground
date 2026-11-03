@@ -16,9 +16,16 @@
 			"bucket_name": "my-emdash-media",
 		},
 	],
-	// Sandboxed plugins require Worker Loader, available on Workers paid plans. Uncomment to enable:
-	// "worker_loaders": [{ "binding": "LOADER" }],
-	// General maintenance cron trigger
+	"workers_dev": true,
+	"preview_urls": false,
+	"vars": {
+		"CF_ACCESS_TEAM_DOMAIN": "",
+		"CF_ACCESS_AUDIENCE": "",
+		"CF_ALLOWED_EMAIL": "",
+		"EMDASH_SITE_URL": "",
+	},
+	"assets": { "run_worker_first": true },
+	"observability": { "enabled": true, "traces": { "enabled": true } },
 	"triggers": {
 		"crons": ["* * * * *"],
 	},

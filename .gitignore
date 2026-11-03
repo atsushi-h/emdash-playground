@@ -4,6 +4,10 @@ dist
 .emdash/migrations.json
 .emdash/types.ts
 .emdash/schema.json
+.emdash/seed.json
+wrangler.production.json
+backups/
+*.emdash
 uploads
 data.db
 data.db-*
